@@ -71,7 +71,7 @@ public class PaymentController {
             paymentLinkRequest.put("notify", notify);
 
             // Callback URL
-            String callbackUrl = callbackBaseUrl + "/payment/" + orderId;
+            String callbackUrl = callbackBaseUrl + "/api/payment/" + orderId;
             paymentLinkRequest.put("callback_url", callbackUrl);
             paymentLinkRequest.put("callback_method", "get");
             
