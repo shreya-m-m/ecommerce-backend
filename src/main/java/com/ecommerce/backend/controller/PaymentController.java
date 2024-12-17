@@ -35,22 +35,21 @@ public class PaymentController {
     @Value("${razorpay.api.secret}")
     private String apiSecret;
 
-    @Value("${app.callback.url}") 
+    @Value("${app.callback.url}")
     private String callbackBaseUrl;
 
     @Autowired
     private OrderService orderService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private OrderRepo orderRepo;
 
-    @PostMapping("payments/{orderId}")
-    public ResponseEntity<PaymentLinkResponse> createPaymentLink(@PathVariable Long orderId,
-            @RequestHeader("Authorization") String jwt) throws OrderException {
+    @PostMapping("/payments/{orderId}")
+    public ResponseEntity<PaymentLinkResponse> createPaymentLink(@PathVariable Long orderId) throws OrderException {
         MyOrder order = orderService.findOrderById(orderId);
+        if (order == null) {
+            throw new OrderException("Order not found with ID: " + orderId);
+        }
 
         try {
             RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
@@ -75,24 +74,19 @@ public class PaymentController {
             String callbackUrl = callbackBaseUrl + "/payment/" + orderId;
             paymentLinkRequest.put("callback_url", callbackUrl);
             paymentLinkRequest.put("callback_method", "get");
-            System.out.println("Callback URL: " + callbackUrl);
-
 
             // Create payment link
             PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
 
-            String paymentLinkId = payment.get("id");
-            String paymentLinkUrl = payment.get("short_url");
-
+            // Prepare response
             PaymentLinkResponse res = new PaymentLinkResponse();
-            res.setPaymentLinkId(paymentLinkId);
-            res.setPaymentLinkUrl(paymentLinkUrl);
+            res.setPaymentLinkId(payment.get("id"));
+            res.setPaymentLinkUrl(payment.get("short_url"));
 
             return new ResponseEntity<>(res, HttpStatus.CREATED);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new OrderException("Unable to create payment link. Please try again later.");
+        } catch (RazorpayException e) {
+            throw new OrderException("Unable to create payment link: " + e.getMessage());
         }
     }
 
