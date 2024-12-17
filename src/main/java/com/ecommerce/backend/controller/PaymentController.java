@@ -35,7 +35,7 @@ public class PaymentController {
     @Value("${razorpay.api.secret}")
     private String apiSecret;
 
-    @Value("${app.callback.url}") // Configurable callback URL
+    @Value("${app.callback.url}") 
     private String callbackBaseUrl;
 
     @Autowired
