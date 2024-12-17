@@ -74,6 +74,8 @@ public class PaymentController {
             String callbackUrl = callbackBaseUrl + "/payment/" + orderId;
             paymentLinkRequest.put("callback_url", callbackUrl);
             paymentLinkRequest.put("callback_method", "get");
+            
+            System.out.println("Generated Callback URL: " + callbackUrl);
 
             // Create payment link
             PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
@@ -98,6 +100,13 @@ public class PaymentController {
 
         try {
             Payment payment = razorpay.payments.fetch(paymentId);
+            // Print the full URL with payment details in the console
+            System.out.println("Payment Details URL: "
+                + "https://trendinsta.vercel.app/payment/" + orderId
+                + "?razorpay_payment_id=" + paymentId
+                + "&razorpay_payment_link_id=" + payment.get("payment_link_id")
+                + "&razorpay_payment_link_status=" + payment.get("status")
+                + "&razorpay_signature=" + payment.get("signature"));
 
             if ("captured".equals(payment.get("status"))) {
                 // Update order payment details
