@@ -29,104 +29,94 @@ import com.razorpay.RazorpayException;
 @RequestMapping("/api")
 public class PaymentController {
 
-    @Value("${razorpay.api.key}")
-    private String apiKey;
+	@Value("${razorpay.api.key}")
+	String apiKey;
 
-    @Value("${razorpay.api.secret}")
-    private String apiSecret;
+	@Value("${razorpay.api.secret}")
+	String apiSecret;
 
-    @Value("${app.callback.url}")
-    private String callbackBaseUrl;
+	@Autowired
+	private OrderService orderService;
 
-    @Autowired
-    private OrderService orderService;
+	@Autowired
+	private UserService userService;
 
-    @Autowired
-    private OrderRepo orderRepo;
+	@Autowired
+	private OrderRepo orderRepo;
 
-    @PostMapping("/payments/{orderId}")
-    public ResponseEntity<PaymentLinkResponse> createPaymentLink(@PathVariable Long orderId) throws OrderException {
-        MyOrder order = orderService.findOrderById(orderId);
-        if (order == null) {
-            throw new OrderException("Order not found with ID: " + orderId);
-        }
+	@PostMapping("payments/{orderId}")
+	public ResponseEntity<PaymentLinkResponse> createPaymentLink(@PathVariable Long orderId,
+	        @RequestHeader("Authorization") String jwt) throws OrderException {
+	    MyOrder order = orderService.findOrderById(orderId);
 
-        try {
-            RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
+	    try {
+	        RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
-            JSONObject paymentLinkRequest = new JSONObject();
-            paymentLinkRequest.put("amount", order.getTotalDiscountedPrice() * 100); // Amount in paise
-            paymentLinkRequest.put("currency", "INR");
+	        JSONObject paymentLinkRequest = new JSONObject();
+	        paymentLinkRequest.put("amount", order.getTotalDiscountedPrice()* 100); 
+	        paymentLinkRequest.put("currency", "INR");
 
-            // Customer details
-            JSONObject customer = new JSONObject();
-            customer.put("name", order.getUser().getFirstname());
-            customer.put("email", order.getUser().getEmail());
-            paymentLinkRequest.put("customer", customer);
+	        JSONObject customer = new JSONObject();
+	        customer.put("name", order.getUser().getFirstname());
+	        customer.put("email", order.getUser().getEmail());
+	        paymentLinkRequest.put("customer", customer);
 
-            // Notification options
-            JSONObject notify = new JSONObject();
-            notify.put("sms", true);
-            notify.put("email", true);
-            paymentLinkRequest.put("notify", notify);
+	        JSONObject notify = new JSONObject();
+	        notify.put("sms", true);
+	        notify.put("email", true);
+	        paymentLinkRequest.put("notify", notify);
 
-            // Callback URL
-            String callbackUrl = callbackBaseUrl + "/api/payment/" + orderId;
-            paymentLinkRequest.put("callback_url", callbackUrl);
-            paymentLinkRequest.put("callback_method", "get");
-            
-            System.out.println("Generated Callback URL: " + callbackUrl);
+	        paymentLinkRequest.put("callback_url", "https://trendinsta.vercel.app/payment/" + orderId);
+	        paymentLinkRequest.put("callback_method", "get");
 
-            // Create payment link
-            PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
+	        PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
 
-            // Prepare response
-            PaymentLinkResponse res = new PaymentLinkResponse();
-            res.setPaymentLinkId(payment.get("id"));
-            res.setPaymentLinkUrl(payment.get("short_url"));
+	        String paymentLinkId = payment.get("id");
+	        String paymentLinkUrl = payment.get("short_url"); 
 
-            return new ResponseEntity<>(res, HttpStatus.CREATED);
+	        PaymentLinkResponse res = new PaymentLinkResponse();
+	        res.setPaymentLinkId(paymentLinkId);
+	        res.setPaymentLinkUrl(paymentLinkUrl);
 
-        } catch (RazorpayException e) {
-            throw new OrderException("Unable to create payment link: " + e.getMessage());
-        }
-    }
+	        return new ResponseEntity<>(res, HttpStatus.CREATED);
 
-    @GetMapping("/payments")
-    public ResponseEntity<ApiResponse> redirect(@RequestParam(name = "payment_id") String paymentId,
-            @RequestParam(name = "order_id") Long orderId) throws OrderException, RazorpayException {
-        MyOrder order = orderService.findOrderById(orderId);
-        RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new OrderException("Unable to create payment link. Please try again later.");
+	    }
+	}
 
-        try {
-            Payment payment = razorpay.payments.fetch(paymentId);
-            // Print the full URL with payment details in the console
-            System.out.println("Payment Details URL: "
-                + "https://trendinsta.vercel.app/payment/" + orderId
-                + "?razorpay_payment_id=" + paymentId
-                + "&razorpay_payment_link_id=" + payment.get("payment_link_id")
-                + "&razorpay_payment_link_status=" + payment.get("status")
-                + "&razorpay_signature=" + payment.get("signature"));
+	
 
-            if ("captured".equals(payment.get("status"))) {
-                // Update order payment details
-                order.getPaydetails().setPayId(paymentId);
-                order.getPaydetails().setPayStatus("COMPLETED");
-                order.setOrderStatus("PLACED");
-                orderRepo.save(order);
+	@GetMapping("/payments")
+	public ResponseEntity<ApiResponse> redirect(@RequestParam(name = "payment_id") String paymentId,
+			@RequestParam(name = "order_id") Long orderId) throws OrderException, RazorpayException {
+		MyOrder order = orderService.findOrderById(orderId);
+		RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
-                ApiResponse response = new ApiResponse();
-                response.setMsg("Order Placed Successfully");
-                response.setStatus(true);
-                return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
-            } else {
-                ApiResponse response = new ApiResponse("Payment not captured", false);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
+		try {
+			Payment payment = razorpay.payments.fetch(paymentId);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RazorpayException(e.getMessage());
-        }
-    }
+			if (payment.get("status").equals("captured")) {
+
+				order.getPaydetails().setPayId(paymentId);
+				order.getPaydetails().setPayStatus("COMPLETED");
+				order.setOrderStatus("PLACED");
+				orderRepo.save(order); 
+
+				ApiResponse response = new ApiResponse();
+				response.setMsg("Order Placed Successfully");
+				response.setStatus(true);
+				return new ResponseEntity<ApiResponse>(response, HttpStatus.ACCEPTED);
+			} else {
+				ApiResponse response = new ApiResponse("Payment not captured", false);
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			}
+
+		} catch (Exception e) {
+		
+			throw new RazorpayException(e.getMessage());
+		}
+	}
+
 }
