@@ -35,7 +35,8 @@ public class AppConfig {
 				CorsConfiguration cfg= new CorsConfiguration();
 				cfg.setAllowedOrigins(Arrays.asList(
 						"http://localhost:3000",
-						"https://trendinsta.vercel.app"
+						"https://trendinsta.vercel.app",
+						"https://ecommerce-q4cm.onrender.com"
 						));
 				
 				cfg.setAllowedMethods(Collections.singletonList("*"));
