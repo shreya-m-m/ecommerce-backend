@@ -15,48 +15,65 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.razorpay.RazorpayClient;
 
 @Configuration
 public class AppConfig {
-	
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-		
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-		.authorizeHttpRequests(Authorize->Authorize.antMatchers("/api/**").authenticated().anyRequest().permitAll())
-		.addFilterBefore(new JwtValidator(), BasicAuthenticationFilter.class)
-		.csrf().disable()
-		.cors().configurationSource(new CorsConfigurationSource(){
 
-			@Override
-			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-				
-				CorsConfiguration cfg= new CorsConfiguration();
-				cfg.setAllowedOrigins(Arrays.asList(
-						"http://localhost:3000",
-						"https://trendinsta.vercel.app",
-						"https://ecommerce-q4cm.onrender.com"
-						));
-				
-				cfg.setAllowedMethods(Collections.singletonList("*"));
-				cfg.setAllowCredentials(true);
-				cfg.setAllowedHeaders(Collections.singletonList("*"));
-				cfg.setExposedHeaders(Arrays.asList("Authorization"));
-				cfg.setMaxAge(3600L);
-;				
-				return cfg;
-			}
-			
-		})
-		.and().httpBasic().and().formLogin();
-		
-		return http.build();
-	}
-	
-	@Bean
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+            .authorizeHttpRequests(authorize -> 
+                authorize
+                    .antMatchers("/api/**").authenticated() // Restrict API access to authenticated users
+                    .anyRequest().permitAll() // Allow other requests
+            )
+            .addFilterBefore(new JwtValidator(), BasicAuthenticationFilter.class)
+            .csrf().disable()
+            .cors()
+                .configurationSource(corsConfigurationSource()) // Use the defined CORS configuration
+                .and()
+            .httpBasic()
+                .disable() // Disable basic auth if not needed
+            .formLogin()
+                .disable(); // Disable form login for stateless API
+
+        return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:3000",
+            "https://trendinsta.vercel.app",
+            "https://ecommerce-q4cm.onrender.com"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public RazorpayClient razorpayClient() throws Exception {
+        String apiKey = "rzp_test_L2Sf8ArPdYb2QT"; 
+        String apiSecret = "jrxpUgZhCyUY4WupqRw0rjLm"; // Replace with your Razorpay API Secret
+        return new RazorpayClient(apiKey, apiSecret);
+    }
 }

@@ -1,68 +1,57 @@
 package com.ecommerce.backend.controller;
 
 import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.ecommerce.backend.exception.OrderException;
 import com.ecommerce.backend.model.MyOrder;
-import com.ecommerce.backend.model.PaymentDetails;
 import com.ecommerce.backend.model.PaymentInfo;
 import com.ecommerce.backend.repos.OrderRepo;
 import com.ecommerce.backend.response.ApiResponse;
 import com.ecommerce.backend.response.PaymentLinkResponse;
 import com.ecommerce.backend.service.OrderService;
-import com.ecommerce.backend.service.UserService;
 import com.razorpay.Payment;
 import com.razorpay.PaymentLink;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 public class PaymentController {
 
     @Value("${razorpay.api.key}")
-    String apiKey;
+    private String apiKey;
 
     @Value("${razorpay.api.secret}")
-    String apiSecret;
+    private String apiSecret;
+
+    @Value("${app.base.url}")
+    private String baseUrl; // Dynamically set base URL from environment variables or properties file
 
     @Autowired
     private OrderService orderService;
-
-    @Autowired
-    private UserService userService;
-
+    
     @Autowired
     private OrderRepo orderRepo;
+    
+    
 
     @PostMapping("/payments/{orderId}")
     public ResponseEntity<PaymentLinkResponse> createPaymentLink(@PathVariable Long orderId,
-            @RequestHeader("Authorization") String jwt) throws OrderException {
+                                                                 @RequestHeader("Authorization") String jwt) throws OrderException {
         MyOrder order = orderService.findOrderById(orderId);
-        
-        System.out.println("Im Here Inside the Payment controller ");
 
         try {
-        	
-        	System.out.println("Im Here Inside the Payment controller try");
             RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
             JSONObject paymentLinkRequest = new JSONObject();
-            paymentLinkRequest.put("amount", order.getTotalDiscountedPrice() * 100);
+            paymentLinkRequest.put("amount", order.getTotalDiscountedPrice() * 100); // Amount in paise
             paymentLinkRequest.put("currency", "INR");
 
             JSONObject customer = new JSONObject();
@@ -70,34 +59,32 @@ public class PaymentController {
             customer.put("email", order.getUser().getEmail());
             paymentLinkRequest.put("customer", customer);
             
-            System.out.println("Customer name "+ order.getUser().getFirstname());
-            System.out.println("Customer Email "+order.getUser().getEmail());
-            
+            System.out.println("Customer Name: "+order.getUser().getFirstname());
 
             JSONObject notify = new JSONObject();
             notify.put("sms", true);
             notify.put("email", true);
             paymentLinkRequest.put("notify", notify);
 
-            paymentLinkRequest.put("callback_url", "https://trendinsta.vercel.app/payment/"+orderId);
-//            paymentLinkRequest.put("callback_url", "http://localhost:3000/payment/"+orderId);
+            // Dynamically set the callback URL
+            paymentLinkRequest.put("callback_url", baseUrl + "/payment/" + orderId);
             paymentLinkRequest.put("callback_method", "get");
             
-            System.out.println("Payment Request Link "+ paymentLinkRequest );
+            System.out.println("Payment Link Request: "+paymentLinkRequest );
 
             PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
 
             String paymentLinkId = payment.get("id");
             String paymentLinkUrl = payment.get("short_url");
             
-            System.out.println("paymentLinkId "+ paymentLinkId );
-            System.out.println("paymentLinkUrl "+paymentLinkUrl);
+            System.out.println("Payment Details: "+ payment);
 
             PaymentLinkResponse res = new PaymentLinkResponse();
             res.setPaymentLinkId(paymentLinkId);
             res.setPaymentLinkUrl(paymentLinkUrl);
 
-            return new ResponseEntity<PaymentLinkResponse>(res, HttpStatus.CREATED);
+            System.out.println(" Payment Response: "+ res);
+            return new ResponseEntity<>(res, HttpStatus.CREATED);
 
         } catch (Exception e) {
             throw new OrderException("Unable to create payment link. Please try again later.");
