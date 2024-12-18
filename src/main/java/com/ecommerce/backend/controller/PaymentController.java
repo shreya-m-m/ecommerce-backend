@@ -71,13 +71,17 @@ public class PaymentController {
             notify.put("email", true);
             paymentLinkRequest.put("notify", notify);
 
-            paymentLinkRequest.put("callback_url", "https://trendinsta.vercel.app/payment/"+orderId);
+//            paymentLinkRequest.put("callback_url", "https://trendinsta.vercel.app/payment/"+orderId);
+            paymentLinkRequest.put("callback_url", "http://localhost:3000/payment/"+orderId);
             paymentLinkRequest.put("callback_method", "get");
 
             PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
 
             String paymentLinkId = payment.get("id");
             String paymentLinkUrl = payment.get("short_url");
+            
+            System.out.println("paymentLinkId "+ paymentLinkId );
+            System.out.println("paymentLinkUrl "+paymentLinkUrl);
 
             PaymentLinkResponse res = new PaymentLinkResponse();
             res.setPaymentLinkId(paymentLinkId);
