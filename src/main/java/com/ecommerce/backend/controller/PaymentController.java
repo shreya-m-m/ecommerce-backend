@@ -53,8 +53,12 @@ public class PaymentController {
     public ResponseEntity<PaymentLinkResponse> createPaymentLink(@PathVariable Long orderId,
             @RequestHeader("Authorization") String jwt) throws OrderException {
         MyOrder order = orderService.findOrderById(orderId);
+        
+        System.out.println("Im Here Inside the Payment controller ");
 
         try {
+        	
+        	System.out.println("Im Here Inside the Payment controller try");
             RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
             JSONObject paymentLinkRequest = new JSONObject();
