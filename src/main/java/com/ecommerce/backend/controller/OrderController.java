@@ -51,30 +51,16 @@ public class OrderController {
 		
 	}
 	
-//	@GetMapping("/account/order/{orderId}")
-//	public ResponseEntity<MyOrder>findOrderById(@PathVariable Long orderId,@RequestHeader("Authorization")String jwt) throws UserException, OrderException{
-//		User user = userService.findUserProfileByJwtId(jwt);
-//		MyOrder order = orderService.findOrderById(orderId);
-//		
-//		return new  ResponseEntity<MyOrder>(order,HttpStatus.ACCEPTED);
-//		
-//	}
-	
-//	@GetMapping("/account/order")
-//	public ResponseEntity<List<MyOrder>> getAllOrders(@RequestHeader("Authorization") String jwt) throws UserException {
-//	    // Retrieve the user profile using the JWT token
-//	    User user = userService.findUserProfileByJwtId(jwt);
-//
-//	    // Fetch all orders for the user
-//	    List<MyOrder> orders = orderService.getAllOrdersByUserId(user.getUser_id());
-//	    
-//	    if (orders.isEmpty()) {
-//	        return ResponseEntity.noContent().build();  // Return 204 No Content if no orders are found
-//	    }
-//	    return ResponseEntity.ok(orders);  // Return 200 OK with the orders
-//	}
+	@GetMapping("/account/order/{orderId}")
+	public ResponseEntity<MyOrder>findOrderById(@PathVariable Long orderId,@RequestHeader("Authorization")String jwt) throws UserException, OrderException{
+		User user = userService.findUserProfileByJwtId(jwt);
+		MyOrder order = orderService.findOrderById(orderId);
+		
+		return new  ResponseEntity<MyOrder>(order,HttpStatus.ACCEPTED);
+		
+
 
 	}
-
+}
 
 
