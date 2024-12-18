@@ -122,14 +122,14 @@ public class PaymentController {
                 cardNetwork = cardDetails.optString("network", "N/A");
                 expiryMonths = cardDetails.optString("expiry_month", "N/A");
                 expiryYears = cardDetails.optString("expiry_year", "N/A");
-//
+
 //                // Print out the extracted information
-//                System.out.println("Cardholder Name: " + cardHolderName);
-//                System.out.println("Card Last 4 Digits: " + cardLast4);
-//                System.out.println("Card Type: " + cardType);
-//                System.out.println("Card Network: " + cardNetwork);
-//                System.out.println("Expiration Month: " + expiryMonths);
-//                System.out.println("Expiration Year: " + expiryYears);
+                System.out.println("Cardholder Name: " + cardHolderName);
+                System.out.println("Card Last 4 Digits: " + cardLast4);
+                System.out.println("Card Type: " + cardType);
+                System.out.println("Card Network: " + cardNetwork);
+                System.out.println("Expiration Month: " + expiryMonths);
+                System.out.println("Expiration Year: " + expiryYears);
             } else {
                 System.out.println("No card details available in the payment.");
             }
