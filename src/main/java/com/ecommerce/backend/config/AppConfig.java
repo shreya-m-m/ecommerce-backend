@@ -31,17 +31,17 @@ public class AppConfig {
             .authorizeHttpRequests(authorize -> 
                 authorize
                     .antMatchers("/api/**").authenticated() // Restrict API access to authenticated users
-                    .anyRequest().permitAll() // Allow other requests
+                    .anyRequest().permitAll() 
             )
             .addFilterBefore(new JwtValidator(), BasicAuthenticationFilter.class)
             .csrf().disable()
             .cors()
-                .configurationSource(corsConfigurationSource()) // Use the defined CORS configuration
+                .configurationSource(corsConfigurationSource()) 
                 .and()
             .httpBasic()
-                .disable() // Disable basic auth if not needed
+                .disable() 
             .formLogin()
-                .disable(); // Disable form login for stateless API
+                .disable(); 
 
         return http.build();
     }
@@ -73,7 +73,7 @@ public class AppConfig {
     @Bean
     public RazorpayClient razorpayClient() throws Exception {
         String apiKey = "rzp_test_neXsF3ESbi7Dn7"; 
-        String apiSecret = "dNri6c8KFuoilpBhtkXVNWDw"; // Replace with your Razorpay API Secret
+        String apiSecret = "dNri6c8KFuoilpBhtkXVNWDw"; 
         return new RazorpayClient(apiKey, apiSecret);
     }
 }
