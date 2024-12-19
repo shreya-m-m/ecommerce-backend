@@ -70,8 +70,8 @@ public class PaymentController {
             paymentLinkRequest.put("notify", notify);
 
             // Dynamically set the callback URL
-//            paymentLinkRequest.put("callback_url", "https://trendinsta.vercel.app/payment/" + orderId);
-//            paymentLinkRequest.put("callback_method", "get");
+            paymentLinkRequest.put("callback_url", "https://trendinsta.vercel.app/payment/" + orderId);
+            paymentLinkRequest.put("callback_method", "get");
 
             System.out.println("Payment Link Request: " + paymentLinkRequest);
 
