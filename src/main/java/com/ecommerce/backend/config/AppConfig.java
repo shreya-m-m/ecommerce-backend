@@ -70,10 +70,10 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public RazorpayClient razorpayClient() throws Exception {
-//        String apiKey = "rzp_test_L2Sf8ArPdYb2QT"; 
-//        String apiSecret = "jrxpUgZhCyUY4WupqRw0rjLm"; // Replace with your Razorpay API Secret
-//        return new RazorpayClient(apiKey, apiSecret);
-//    }
+    @Bean
+    public RazorpayClient razorpayClient() throws Exception {
+        String apiKey = "rzp_test_neXsF3ESbi7Dn7"; 
+        String apiSecret = "dNri6c8KFuoilpBhtkXVNWDw"; // Replace with your Razorpay API Secret
+        return new RazorpayClient(apiKey, apiSecret);
+    }
 }
