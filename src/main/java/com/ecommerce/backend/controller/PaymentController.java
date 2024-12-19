@@ -48,8 +48,9 @@ public class PaymentController {
         MyOrder order = orderService.findOrderById(orderId);
 
         try {
-        	  System.out.println("API Key: " + apiKey);
-        	  System.out.println("API secret : " + apiSecret);
+            System.out.println("API Key: " + apiKey);
+            System.out.println("API secret: " + apiSecret);
+
             RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
             JSONObject paymentLinkRequest = new JSONObject();
@@ -60,8 +61,8 @@ public class PaymentController {
             customer.put("name", order.getUser().getFirstname());
             customer.put("email", order.getUser().getEmail());
             paymentLinkRequest.put("customer", customer);
-            
-            System.out.println("Customer Name: "+order.getUser().getFirstname());
+
+            System.out.println("Customer Name: " + order.getUser().getFirstname());
 
             JSONObject notify = new JSONObject();
             notify.put("sms", true);
@@ -69,31 +70,30 @@ public class PaymentController {
             paymentLinkRequest.put("notify", notify);
 
             // Dynamically set the callback URL
-            paymentLinkRequest.put("callback_url", baseUrl + "/payment/" + orderId);
+            paymentLinkRequest.put("callback_url", "https://trendinsta.vercel.app/payment/" + orderId);
             paymentLinkRequest.put("callback_method", "get");
-            
-            System.out.println("Payment Link Request: "+paymentLinkRequest );
+
+            System.out.println("Payment Link Request: " + paymentLinkRequest);
 
             PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
 
             String paymentLinkId = payment.get("id");
             String paymentLinkUrl = payment.get("short_url");
-            String callbackUrl = payment.get("callback_url");            
-            
-            System.out.println("Payment Details: "+ payment);
+
+            System.out.println("Payment Details: " + payment);
 
             PaymentLinkResponse res = new PaymentLinkResponse();
             res.setPaymentLinkId(paymentLinkId);
             res.setPaymentLinkUrl(paymentLinkUrl);
-            res.setCallbackUrl(callbackUrl);
 
-            System.out.println(" Payment Response: "+ res);
-            return new ResponseEntity<PaymentLinkResponse>(res, HttpStatus.CREATED);
+            System.out.println("Payment Response: " + res);
+            return new ResponseEntity<>(res, HttpStatus.CREATED);
 
         } catch (Exception e) {
             throw new OrderException("Unable to create payment link. Please try again later.");
         }
     }
+
 
     @GetMapping("/payments")
     public ResponseEntity<ApiResponse> redirect(@RequestParam(name = "payment_id") String paymentId,
