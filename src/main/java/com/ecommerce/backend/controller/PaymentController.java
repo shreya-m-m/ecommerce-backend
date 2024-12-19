@@ -78,6 +78,7 @@ public class PaymentController {
 
             String paymentLinkId = payment.get("id");
             String paymentLinkUrl = payment.get("short_url");
+            String callbackUrl = payment.get("callback_url");            
             
             System.out.println("Payment Details: "+ payment);
 
@@ -86,7 +87,7 @@ public class PaymentController {
             res.setPaymentLinkUrl(paymentLinkUrl);
 
             System.out.println(" Payment Response: "+ res);
-            return new ResponseEntity<>(res, HttpStatus.CREATED);
+            return new ResponseEntity<PaymentLinkResponse>(res, HttpStatus.CREATED);
 
         } catch (Exception e) {
             throw new OrderException("Unable to create payment link. Please try again later.");
