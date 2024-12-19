@@ -4,6 +4,7 @@ public class PaymentLinkResponse {
 
     private String paymentLinkId;
     private String paymentLinkUrl;
+    private String callbackUrl;
 
 
     public PaymentLinkResponse() {}
@@ -25,6 +26,16 @@ public class PaymentLinkResponse {
     public void setPaymentLinkUrl(String paymentLinkUrl) {
         this.paymentLinkUrl = paymentLinkUrl;
     }
+
+
+	public String getCallbackUrl() {
+		return callbackUrl;
+	}
+
+
+	public void setCallbackUrl(String callbackUrl) {
+		this.callbackUrl = callbackUrl;
+	}
 
  
 }

@@ -85,6 +85,7 @@ public class PaymentController {
             PaymentLinkResponse res = new PaymentLinkResponse();
             res.setPaymentLinkId(paymentLinkId);
             res.setPaymentLinkUrl(paymentLinkUrl);
+            res.setCallbackUrl(callbackUrl);
 
             System.out.println(" Payment Response: "+ res);
             return new ResponseEntity<PaymentLinkResponse>(res, HttpStatus.CREATED);
