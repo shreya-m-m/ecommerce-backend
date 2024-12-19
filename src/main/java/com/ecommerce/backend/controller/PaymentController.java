@@ -48,6 +48,8 @@ public class PaymentController {
         MyOrder order = orderService.findOrderById(orderId);
 
         try {
+        	  System.out.println("API Key: " + apiKey);
+        	  System.out.println("API secret : " + apiSecret);
             RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
             JSONObject paymentLinkRequest = new JSONObject();
