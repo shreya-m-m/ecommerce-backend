@@ -70,10 +70,10 @@ public class PaymentController {
 
             // Dynamically set the callback URL
 //            paymentLinkRequest.put("callback_url", "http://localhost:3000/payment/" + orderId);
-            paymentLinkRequest.put("callback_url", baseUrl+"/payment/" + orderId);
-            paymentLinkRequest.put("callback_method", "get");
-
-            System.out.println("Payment Link Request: " + paymentLinkRequest);
+//            paymentLinkRequest.put("callback_url", baseUrl+"/payment/" + orderId);
+//            paymentLinkRequest.put("callback_method", "get");
+//
+//            System.out.println("Payment Link Request: " + paymentLinkRequest);
 
             PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
 
