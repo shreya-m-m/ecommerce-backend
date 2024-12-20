@@ -20,20 +20,6 @@ public class OrderItemServiceImpl implements OrderItemService{
 	    return orderItemRepo.save(orderItem);
 	}
 
-	@Override
-	public OrderItem findByOrderItemId(Long orderItemId) {
-		try {
-			Optional<OrderItem> opt = orderItemRepo.findById(orderItemId);
-			if(opt.isPresent()) {
-				return opt.get();
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 
 }

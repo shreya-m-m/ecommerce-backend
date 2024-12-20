@@ -65,16 +65,7 @@ public class OrderController {
 
 	}
 	
-	@GetMapping("/account/orderItem/{orderItemId}")
-	public ResponseEntity<OrderItem>FindByOrderItemId(@PathVariable Long orderItemId,@RequestHeader("Authorization")String jwt) throws UserException, OrderException{
-		User user = userService.findUserProfileByJwtId(jwt);
-		OrderItem order = orderItemService.findByOrderItemId(orderItemId);
-		
-		return new  ResponseEntity<OrderItem>(order,HttpStatus.ACCEPTED);
-		
-
-
-	}
+	
 }
 
 
