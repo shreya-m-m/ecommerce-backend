@@ -32,8 +32,7 @@ public class PaymentController {
     private String apiSecret;
 
     @Value("${app.base.url}")
-    private String baseUrl; // Dynamically set base URL from environment variables or properties file
-
+    private String baseUrl; 
     @Autowired
     private OrderService orderService;
     
@@ -70,7 +69,8 @@ public class PaymentController {
             paymentLinkRequest.put("notify", notify);
 
             // Dynamically set the callback URL
-            paymentLinkRequest.put("callback_url", "https://trendinsta.vercel.app/payment/" + orderId);
+//            paymentLinkRequest.put("callback_url", "http://localhost:3000/payment/" + orderId);
+            paymentLinkRequest.put("callback_url", baseUrl+"/payment/" + orderId);
             paymentLinkRequest.put("callback_method", "get");
 
             System.out.println("Payment Link Request: " + paymentLinkRequest);

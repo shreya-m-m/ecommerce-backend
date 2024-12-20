@@ -18,8 +18,9 @@ import com.ecommerce.backend.exception.UserException;
 import com.ecommerce.backend.model.Address;
 
 import com.ecommerce.backend.model.MyOrder;
+import com.ecommerce.backend.model.OrderItem;
 import com.ecommerce.backend.model.User;
-
+import com.ecommerce.backend.service.OrderItemService;
 import com.ecommerce.backend.service.OrderService;
 import com.ecommerce.backend.service.UserService;
 
@@ -29,6 +30,8 @@ public class OrderController {
 	
 	@Autowired
 	private OrderService orderService;
+	@Autowired
+	private OrderItemService orderItemService;
 	
 	@Autowired
 	private UserService userService;
@@ -57,6 +60,17 @@ public class OrderController {
 		MyOrder order = orderService.findOrderById(orderId);
 		
 		return new  ResponseEntity<MyOrder>(order,HttpStatus.ACCEPTED);
+		
+
+
+	}
+	
+	@GetMapping("/account/orderItem/{orderItemId}")
+	public ResponseEntity<OrderItem>FindByOrderItemId(@PathVariable Long orderItemId,@RequestHeader("Authorization")String jwt) throws UserException, OrderException{
+		User user = userService.findUserProfileByJwtId(jwt);
+		OrderItem order = orderItemService.findByOrderItemId(orderItemId);
+		
+		return new  ResponseEntity<OrderItem>(order,HttpStatus.ACCEPTED);
 		
 
 

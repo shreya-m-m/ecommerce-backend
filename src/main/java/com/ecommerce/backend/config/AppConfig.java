@@ -50,7 +50,7 @@ public class AppConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-//            "http://localhost:3000",
+            "http://localhost:3000",
             "https://trendinsta.vercel.app"
           
         ));
