@@ -75,6 +75,7 @@ public class AppConfig {
     public RazorpayClient razorpayClient() throws Exception {
         String apiKey = "rzp_test_neXsF3ESbi7Dn7"; 
         String apiSecret = "dNri6c8KFuoilpBhtkXVNWDw"; 
+        String apibaseUrl = "https://trendinsta.vercel.app";
         return new RazorpayClient(apiKey, apiSecret);
     }
 }

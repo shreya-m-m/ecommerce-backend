@@ -32,14 +32,15 @@ public class PaymentController {
     private String apiSecret;
 
     @Value("${app.base.url}")
-    private String baseUrl; 
-    
+    private String baseUrl; // Use this value for dynamic callback URLs
+
     @Autowired
     private OrderService orderService;
     
     @Autowired
     private OrderRepo orderRepo;
 
+    // Create Payment Link
     @PostMapping("/payments/{orderId}")
     public ResponseEntity<PaymentLinkResponse> createPaymentLink(@PathVariable Long orderId,
                                                                  @RequestHeader("Authorization") String jwt) throws OrderException {
@@ -51,9 +52,11 @@ public class PaymentController {
             JSONObject paymentLinkRequest = new JSONObject();
             paymentLinkRequest.put("amount", order.getTotalDiscountedPrice() * 100); // Amount in paise
             paymentLinkRequest.put("currency", "INR");
-            String callbackUrl = "https://trendinsta.vercel.app/payment/" + orderId;
+            String callbackUrl = baseUrl+"/payment/" + orderId;  // Dynamically use base URL
             paymentLinkRequest.put("callback_url", callbackUrl);
             paymentLinkRequest.put("callback_method", "get");
+            
+            
 
             JSONObject customer = new JSONObject();
             customer.put("name", order.getUser().getFirstname());
@@ -73,6 +76,8 @@ public class PaymentController {
             PaymentLinkResponse res = new PaymentLinkResponse();
             res.setPaymentLinkId(paymentLinkId);
             res.setPaymentLinkUrl(paymentLinkUrl);
+            
+            System.out.printf("Payment Link Request ",paymentLinkRequest);
 
             return new ResponseEntity<>(res, HttpStatus.CREATED);
 
@@ -81,6 +86,7 @@ public class PaymentController {
         }
     }
 
+    // Update Payment Status
     @GetMapping("/payments")
     public ResponseEntity<ApiResponse> redirect(@RequestParam(name = "payment_id") String paymentId,
                                                 @RequestParam(name = "order_id") Long orderId) throws OrderException, RazorpayException {
@@ -88,44 +94,19 @@ public class PaymentController {
         RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
         try {
-            // Fetch payment details from Razorpay
             Payment payment = razorpay.payments.fetch(paymentId);
+            String paymentStatus = payment.get("status");
 
-            JSONObject cardDetails = (JSONObject) payment.get("card");
-            String cardHolderName = null, cardLast4 = null, cardType = null, cardNetwork = null, expiryMonths = null, expiryYears = null;
-            
-            if (cardDetails != null) {
-                cardHolderName = cardDetails.optString("name", "N/A");
-                cardLast4 = cardDetails.optString("last4", "N/A");
-                cardType = cardDetails.optString("type", "N/A");
-                cardNetwork = cardDetails.optString("network", "N/A");
-                expiryMonths = cardDetails.optString("expiry_month", "N/A");
-                expiryYears = cardDetails.optString("expiry_year", "N/A");
-            }
-
-            String paymentMethod = payment.get("method");
-            
-            if ("captured".equals(payment.get("status"))) {
+            if ("captured".equals(paymentStatus)) {
+                // Update payment info and order status
                 PaymentInfo paymentInfo = new PaymentInfo();
-                paymentInfo.setCardholderName(cardHolderName);
-                paymentInfo.setCardNumber(cardLast4);
-
-                try {
-                    if (!"N/A".equals(expiryMonths) && !"N/A".equals(expiryYears)) {
-                        int month = Integer.parseInt(expiryMonths);
-                        int year = Integer.parseInt(expiryYears);
-                        LocalDateTime expirationDate = LocalDateTime.of(year, month, 1, 0, 0);
-                        paymentInfo.setExpirationDate(expirationDate);
-                    }
-                } catch (NumberFormatException e) {
-                    System.err.println("Error parsing expiration date: " + e.getMessage());
-                }
-
+//                paymentInfo.setCardholderName(payment.get("card").toString("name"));
+//                paymentInfo.setCardNumber(payment.get("card").optString("last4", "N/A"));
                 order.getUser().getPaymentInfo().add(paymentInfo);
 
                 order.getPaydetails().setPayId(paymentId);
                 order.getPaydetails().setPayStatus("COMPLETED");
-                order.getPaydetails().setPaymentMethod(paymentMethod);
+                order.getPaydetails().setPaymentMethod(payment.get("method"));
                 order.setOrderStatus("PLACED");
 
                 orderRepo.save(order);
