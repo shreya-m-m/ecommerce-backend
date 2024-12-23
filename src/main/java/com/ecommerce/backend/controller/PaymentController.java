@@ -33,13 +33,12 @@ public class PaymentController {
 
     @Value("${app.base.url}")
     private String baseUrl; 
+    
     @Autowired
     private OrderService orderService;
     
     @Autowired
     private OrderRepo orderRepo;
-    
-    
 
     @PostMapping("/payments/{orderId}")
     public ResponseEntity<PaymentLinkResponse> createPaymentLink(@PathVariable Long orderId,
@@ -47,53 +46,40 @@ public class PaymentController {
         MyOrder order = orderService.findOrderById(orderId);
 
         try {
-            System.out.println("API Key: " + apiKey);
-            System.out.println("API secret: " + apiSecret);
-
             RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
             JSONObject paymentLinkRequest = new JSONObject();
             paymentLinkRequest.put("amount", order.getTotalDiscountedPrice() * 100); // Amount in paise
             paymentLinkRequest.put("currency", "INR");
+            String callbackUrl = "https://trendinsta.vercel.app/payment/" + orderId;
+            paymentLinkRequest.put("callback_url", callbackUrl);
+            paymentLinkRequest.put("callback_method", "get");
 
             JSONObject customer = new JSONObject();
             customer.put("name", order.getUser().getFirstname());
             customer.put("email", order.getUser().getEmail());
             paymentLinkRequest.put("customer", customer);
 
-            System.out.println("Customer Name: " + order.getUser().getFirstname());
-
             JSONObject notify = new JSONObject();
             notify.put("sms", true);
             notify.put("email", true);
             paymentLinkRequest.put("notify", notify);
-
-            // Dynamically set the callback URL
-//            paymentLinkRequest.put("callback_url", "http://localhost:3000/payment/" + orderId);
-            paymentLinkRequest.put("callback_url", baseUrl+"/payment/" + orderId);
-            paymentLinkRequest.put("callback_method", "get");
-
-            System.out.println("Payment Link Request: " + paymentLinkRequest);
 
             PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
 
             String paymentLinkId = payment.get("id");
             String paymentLinkUrl = payment.get("short_url");
 
-            System.out.println("Payment Details: " + payment);
-
             PaymentLinkResponse res = new PaymentLinkResponse();
             res.setPaymentLinkId(paymentLinkId);
             res.setPaymentLinkUrl(paymentLinkUrl);
 
-            System.out.println("Payment Response: " + res);
             return new ResponseEntity<>(res, HttpStatus.CREATED);
 
         } catch (Exception e) {
             throw new OrderException("Unable to create payment link. Please try again later.");
         }
     }
-
 
     @GetMapping("/payments")
     public ResponseEntity<ApiResponse> redirect(@RequestParam(name = "payment_id") String paymentId,
@@ -104,9 +90,7 @@ public class PaymentController {
         try {
             // Fetch payment details from Razorpay
             Payment payment = razorpay.payments.fetch(paymentId);
-            System.out.println("Payment Details: " + payment);
 
-            // Extract card details from the nested card object
             JSONObject cardDetails = (JSONObject) payment.get("card");
             String cardHolderName = null, cardLast4 = null, cardType = null, cardNetwork = null, expiryMonths = null, expiryYears = null;
             
@@ -117,29 +101,15 @@ public class PaymentController {
                 cardNetwork = cardDetails.optString("network", "N/A");
                 expiryMonths = cardDetails.optString("expiry_month", "N/A");
                 expiryYears = cardDetails.optString("expiry_year", "N/A");
-
-//                // Print out the extracted information
-                System.out.println("Cardholder Name: " + cardHolderName);
-                System.out.println("Card Last 4 Digits: " + cardLast4);
-                System.out.println("Card Type: " + cardType);
-                System.out.println("Card Network: " + cardNetwork);
-                System.out.println("Expiration Month: " + expiryMonths);
-                System.out.println("Expiration Year: " + expiryYears);
-            } else {
-                System.out.println("No card details available in the payment.");
             }
 
-            // Extract payment method and verify payment status
             String paymentMethod = payment.get("method");
             
-            
             if ("captured".equals(payment.get("status"))) {
-                // Create and populate PaymentInfo object
                 PaymentInfo paymentInfo = new PaymentInfo();
                 paymentInfo.setCardholderName(cardHolderName);
                 paymentInfo.setCardNumber(cardLast4);
 
-                // Set expiration date
                 try {
                     if (!"N/A".equals(expiryMonths) && !"N/A".equals(expiryYears)) {
                         int month = Integer.parseInt(expiryMonths);
@@ -151,35 +121,25 @@ public class PaymentController {
                     System.err.println("Error parsing expiration date: " + e.getMessage());
                 }
 
-                // Add PaymentInfo to User's paymentInfo list
                 order.getUser().getPaymentInfo().add(paymentInfo);
 
-                // Update order details
                 order.getPaydetails().setPayId(paymentId);
                 order.getPaydetails().setPayStatus("COMPLETED");
                 order.getPaydetails().setPaymentMethod(paymentMethod);
                 order.setOrderStatus("PLACED");
 
-                // Save the updated order and user details
                 orderRepo.save(order);
 
                 ApiResponse response = new ApiResponse("Order Placed Successfully", true);
                 return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
             } else {
-                // Payment not captured scenario
                 ApiResponse response = new ApiResponse("Payment not captured", false);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (RazorpayException e) {
-            // Handle Razorpay API specific errors
-            System.err.println("Razorpay Exception: " + e.getMessage());
             return new ResponseEntity<>(new ApiResponse("Payment processing failed: " + e.getMessage(), false), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            // Handle any other generic exceptions
-            System.err.println("Unexpected error: " + e.getMessage());
             return new ResponseEntity<>(new ApiResponse("Unexpected error occurred: " + e.getMessage(), false), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 }
