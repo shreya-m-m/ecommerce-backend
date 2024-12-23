@@ -51,7 +51,8 @@ public class AppConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:3000",
-            "https://trendinsta.vercel.app"
+            "https://trendinsta.vercel.app",
+            "https://ecommerce-backend-server.up.railway.app"
           
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
