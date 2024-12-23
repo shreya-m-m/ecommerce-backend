@@ -19,8 +19,6 @@ import com.razorpay.PaymentLink;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 
-import java.time.LocalDateTime;
-
 @RestController
 @RequestMapping("/api")
 public class PaymentController {
@@ -52,11 +50,9 @@ public class PaymentController {
             JSONObject paymentLinkRequest = new JSONObject();
             paymentLinkRequest.put("amount", order.getTotalDiscountedPrice() * 100); // Amount in paise
             paymentLinkRequest.put("currency", "INR");
-            String callbackUrl = baseUrl+"/payment/" + orderId;  // Dynamically use base URL
+            String callbackUrl = baseUrl + "/payment/" + orderId;  // Dynamically use base URL
             paymentLinkRequest.put("callback_url", callbackUrl);
             paymentLinkRequest.put("callback_method", "get");
-            
-            
 
             JSONObject customer = new JSONObject();
             customer.put("name", order.getUser().getFirstname());
@@ -68,6 +64,7 @@ public class PaymentController {
             notify.put("email", true);
             paymentLinkRequest.put("notify", notify);
 
+            // Create the payment link
             PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
 
             String paymentLinkId = payment.get("id");
@@ -77,10 +74,11 @@ public class PaymentController {
             res.setPaymentLinkId(paymentLinkId);
             res.setPaymentLinkUrl(paymentLinkUrl);
             
-            System.out.printf("Payment Link Request ",paymentLinkRequest);
-
+            System.out.println("Payment Link Request Created: " + paymentLinkRequest.toString());
             return new ResponseEntity<>(res, HttpStatus.CREATED);
 
+        } catch (RazorpayException e) {
+            throw new OrderException("Error while interacting with Razorpay: " + e.getMessage());
         } catch (Exception e) {
             throw new OrderException("Unable to create payment link. Please try again later.");
         }
@@ -89,26 +87,31 @@ public class PaymentController {
     // Update Payment Status
     @GetMapping("/payments")
     public ResponseEntity<ApiResponse> redirect(@RequestParam(name = "payment_id") String paymentId,
-                                                @RequestParam(name = "order_id") Long orderId) throws OrderException, RazorpayException {
+                                                @RequestParam(name = "order_id") Long orderId) throws OrderException {
         MyOrder order = orderService.findOrderById(orderId);
-        RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
         try {
+            RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
+
+            // Fetch the payment from Razorpay using the paymentId
             Payment payment = razorpay.payments.fetch(paymentId);
             String paymentStatus = payment.get("status");
 
             if ("captured".equals(paymentStatus)) {
-                // Update payment info and order status
+                // Update payment info and order status upon successful payment
                 PaymentInfo paymentInfo = new PaymentInfo();
+                // Assuming you would want to capture details like cardholder name or card info if needed
 //                paymentInfo.setCardholderName(payment.get("card").toString("name"));
 //                paymentInfo.setCardNumber(payment.get("card").optString("last4", "N/A"));
                 order.getUser().getPaymentInfo().add(paymentInfo);
 
+                // Updating the order and its payment details
                 order.getPaydetails().setPayId(paymentId);
                 order.getPaydetails().setPayStatus("COMPLETED");
                 order.getPaydetails().setPaymentMethod(payment.get("method"));
                 order.setOrderStatus("PLACED");
 
+                // Save the updated order status
                 orderRepo.save(order);
 
                 ApiResponse response = new ApiResponse("Order Placed Successfully", true);
