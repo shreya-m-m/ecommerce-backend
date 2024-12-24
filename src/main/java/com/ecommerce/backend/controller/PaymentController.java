@@ -56,7 +56,7 @@ public class PaymentController {
             JSONObject paymentLinkRequest = new JSONObject();
             paymentLinkRequest.put("amount", order.getTotalDiscountedPrice() * 100); // Amount in paise
             paymentLinkRequest.put("currency", "INR");
-            String callbackUrl = baseUrl + "/payment/" + orderId;  // Dynamically use base URL
+            String callbackUrl = baseUrl + "/payment/" + orderId;  
             paymentLinkRequest.put("callback_url", callbackUrl);
             paymentLinkRequest.put("callback_method", "get");
 
