@@ -54,12 +54,12 @@ public class AdminOrderController {
 	}
 	
 
-	@PutMapping("/{orderId}/cancel")
-	public ResponseEntity<MyOrder> CancelOrdeHandler(@PathVariable Long orderId,@RequestHeader("Authorization")String jwt) throws OrderException{
-		MyOrder order = orderService.cancledOrder(orderId);
-		return new ResponseEntity<>(order,HttpStatus.OK);
-		
-	}
+//	@PutMapping("/{orderId}/cancel")
+//	public ResponseEntity<MyOrder> CancelOrdeHandler(@PathVariable Long orderId,@RequestHeader("Authorization")String jwt) throws OrderException{
+//		MyOrder order = orderService.cancledOrder(orderId);
+//		return new ResponseEntity<>(order,HttpStatus.OK);
+//		
+//	}
 	
 
 	@DeleteMapping("/{orderId}/delete")

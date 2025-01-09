@@ -42,6 +42,7 @@ public class AppConfig {
                 .disable() 
             .formLogin()
                 .disable(); 
+        
 
         return http.build();
     }
@@ -51,8 +52,7 @@ public class AppConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:3000",
-            "https://trendinsta.vercel.app",
-            "https://ecommerce-backend-server.up.railway.app"
+            "https://trendinsta.vercel.app"
           
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -71,11 +71,5 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public RazorpayClient razorpayClient() throws Exception {
-        String apiKey = "rzp_test_neXsF3ESbi7Dn7"; 
-        String apiSecret = "dNri6c8KFuoilpBhtkXVNWDw"; 
-        String apibaseUrl = "https://trendinsta.vercel.app";
-        return new RazorpayClient(apiKey, apiSecret);
-    }
+    
 }

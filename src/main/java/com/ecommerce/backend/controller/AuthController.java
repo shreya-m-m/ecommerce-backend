@@ -66,6 +66,7 @@ public class AuthController {
 	        String role = user.getRole();
 
 	        // Check if email already exists
+
 	        User isEmailExist = userRepo.findByEmail(email);
 	        if (isEmailExist != null) {
 	        	AuthResponse authResponse = new AuthResponse();

@@ -61,7 +61,7 @@ public class WishlistServiceImpl implements WishlistService {
         wishlistItem.setProduct(product);
         wishlistItem.setWishlist(wishlist);
         wishlistItem.setQuantity(req.getQuantity());
-        wishlistItem.setProductId(productId);
+//        wishlistItem.setProductId(productId);
         wishlistItem.setUserId(userId);
         wishlistItem.setPrice(req.getPrice());
         if (req.getSize() != null && !req.getSize().isEmpty()) {

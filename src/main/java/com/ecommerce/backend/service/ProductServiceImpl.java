@@ -126,6 +126,9 @@ public class ProductServiceImpl implements ProductService {
 	    if (req.getSizes() != null && !req.getSizes().isEmpty()) {
 	        product.setSizes(req.getSizes());
 	    }
+	    if (req.getDescription() != null) {
+	    	product.setDescription(req.getDescription());
+	    }
 
 	    // Save the updated product in the repository
 	    return productRepo.save(product);

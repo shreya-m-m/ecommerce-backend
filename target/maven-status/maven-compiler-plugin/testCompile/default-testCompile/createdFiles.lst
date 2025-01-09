@@ -1,1 +1,15 @@
+com\ecommerce\backend\controller\WishlistItemControllerTest.class
+com\ecommerce\backend\controller\AdminProductControllerTest.class
+com\ecommerce\backend\controller\ReviewControllerTest.class
+com\ecommerce\backend\controller\CartControllerTest.class
+com\ecommerce\backend\controller\CartItemControllerTest.class
+com\ecommerce\backend\controller\OrderControllerTest.class
+com\ecommerce\backend\controller\RatingControllerTest.class
+com\ecommerce\backend\config\AppConfigTest.class
+com\ecommerce\backend\controller\AuthControllerTest.class
 com\ecommerce\backend\BackendApplicationTests.class
+com\ecommerce\backend\controller\UserControllerTest.class
+com\ecommerce\backend\controller\WishlistControllerTest.class
+com\ecommerce\backend\controller\AdminOrderControllerTest.class
+com\ecommerce\backend\controller\HomeControllerTest.class
+com\ecommerce\backend\controller\ProductControllerTest.class

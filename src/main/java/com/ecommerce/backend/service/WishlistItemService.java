@@ -19,7 +19,7 @@ public interface WishlistItemService {
         throws WishlistItemException, UserException;
 
     // Method to check if a WishlistItem already exists in the wishlist
-    public WishlistItem isWishlistItemExist(Wishlist wishlist, Product product,Long productId, String size, Long userId);
+    public WishlistItem isWishlistItemExist(Wishlist wishlist, Product product, String size, Long userId);
 
     // Method to remove a WishlistItem from the user's wishlist
     public void removeWishlistItem(Long userId, Long wishlistItemId) 

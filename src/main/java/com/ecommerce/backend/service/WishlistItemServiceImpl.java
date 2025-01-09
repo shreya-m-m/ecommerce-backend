@@ -60,9 +60,9 @@ public class WishlistItemServiceImpl implements WishlistItemService {
     }
 
     @Override
-    public WishlistItem isWishlistItemExist(Wishlist wishlist, Product product,Long productId,String size, Long userId) {
+    public WishlistItem isWishlistItemExist(Wishlist wishlist, Product product,String size, Long userId) {
         // Checking if a wishlist item already exists in the given wishlist
-        return wishlistItemRepo.isWishlistItemExist(wishlist, product,productId, size, userId);
+        return wishlistItemRepo.isWishlistItemExist(wishlist, product, size, userId);
     }
 
     @Override

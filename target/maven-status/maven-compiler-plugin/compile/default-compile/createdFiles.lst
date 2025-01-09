@@ -21,7 +21,6 @@ com\ecommerce\backend\config\JwtProvider.class
 com\ecommerce\backend\controller\CartController.class
 com\ecommerce\backend\controller\RatingController.class
 com\ecommerce\backend\repos\ProductRepo.class
-com\ecommerce\backend\config\AppConfig$1.class
 com\ecommerce\backend\model\Product.class
 com\ecommerce\backend\service\ReviewService.class
 com\ecommerce\backend\repos\AddressRepo.class

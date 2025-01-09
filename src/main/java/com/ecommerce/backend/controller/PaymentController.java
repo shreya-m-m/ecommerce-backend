@@ -30,7 +30,7 @@ public class PaymentController {
     private String apiSecret;
 
     @Value("${app.base.url}")
-    private String baseUrl; // Use this value for dynamic callback URLs
+    private String baseUrl; 
 
     @Autowired
     private OrderService orderService;
@@ -44,12 +44,10 @@ public class PaymentController {
                                                                  @RequestHeader("Authorization") String jwt) throws OrderException {
         MyOrder order = orderService.findOrderById(orderId);
         
-        System.out.println("My Order In Payment Controller "+ order);
-
+    
         try {
         	
-        	System.out.println("I'm Here Inside the try Block");
-        	System.out.println("My Order In Payment Controller inside try block "+ order);
+        
         	
             RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
 
@@ -57,6 +55,7 @@ public class PaymentController {
             paymentLinkRequest.put("amount", order.getTotalDiscountedPrice() * 100); // Amount in paise
             paymentLinkRequest.put("currency", "INR");
             String callbackUrl = baseUrl + "/payment/" + orderId;  
+//            String callbackUrl ="http://localhost:3000/payment/" + orderId; 
             paymentLinkRequest.put("callback_url", callbackUrl);
             paymentLinkRequest.put("callback_method", "get");
 
@@ -104,11 +103,9 @@ public class PaymentController {
             String paymentStatus = payment.get("status");
 
             if ("captured".equals(paymentStatus)) {
-                // Update payment info and order status upon successful payment
+                
                 PaymentInfo paymentInfo = new PaymentInfo();
-                // Assuming you would want to capture details like cardholder name or card info if needed
-//                paymentInfo.setCardholderName(payment.get("card").toString("name"));
-//                paymentInfo.setCardNumber(payment.get("card").optString("last4", "N/A"));
+
                 order.getUser().getPaymentInfo().add(paymentInfo);
 
                 // Updating the order and its payment details

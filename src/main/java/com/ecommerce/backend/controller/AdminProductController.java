@@ -45,6 +45,7 @@ public class AdminProductController {
 	private UserService userService;
 	
 
+	//Create a single product
 	@PostMapping("/")
 	public ResponseEntity<Product> createProduct(@RequestBody CreateProductRequest req) {
 		Product product = productService.createProduct(req);
@@ -53,6 +54,7 @@ public class AdminProductController {
 
 	}
 
+	//Deleting the product from the inventory
 	@DeleteMapping("/{productId}/delete")
 	public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId) throws ProductException {
 		productService.deleteProduct(productId);
@@ -62,7 +64,8 @@ public class AdminProductController {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 
 	}
-
+	
+	//Get All the Products Persent In the Inventory
 	@GetMapping("/all")
 	public ResponseEntity<List<Product>> findAllProducts() {
 		List<Product> product = productService.findAllProducts();
@@ -71,6 +74,7 @@ public class AdminProductController {
 	}
 	
 
+	//Get All the registered User
 	@GetMapping("/all-users")
 	public ResponseEntity<List<User>> findAllUsers() {
 		List<User> users = userService.findAllUsers();
@@ -78,7 +82,7 @@ public class AdminProductController {
 
 	}
 	
-	
+	// Update the Product Details
 	@PutMapping("/{productId}/update")
 	public ResponseEntity<Product> updateProduct(@RequestBody Product req, @PathVariable Long productId)
 			throws ProductException {
@@ -87,17 +91,23 @@ public class AdminProductController {
 
 	}
 
+	//Create Mmultiple Products 
 	@PostMapping("/create")
 	public ResponseEntity<ApiResponse> createMultipleProduct(@RequestBody CreateProductRequest[] req) {
 		for (CreateProductRequest product : req) {
 			productService.createProduct(product);
 		}
 		ApiResponse res = new ApiResponse();
-		res.setMsg("Product CreatedSuccessfully");
+		res.setMsg("Product Created Successfully");
 		res.setStatus(true);
 		return new ResponseEntity<>(res, HttpStatus.CREATED);
 
 	}
+	
+	
+//	Optional 
+	
+	//Deleting the Customer Review
 	@DeleteMapping("{reviewId}/review/delete")
 	public ResponseEntity<ApiResponse> deleteReview(@PathVariable Long reviewId) throws ProductException , ReviewException {
 		reviewService.deleteReview(reviewId);
@@ -107,6 +117,8 @@ public class AdminProductController {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 
 	}
+	
+	//Deleting the Customer Ratings
 	@DeleteMapping("{ratingId}/rating/delete")
 	public ResponseEntity<ApiResponse> deleteRating(@PathVariable Long ratingId) throws ProductException , ReviewException, RatingException {
 		ratingService.deleteRating(ratingId);

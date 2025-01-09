@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.ecommerce.backend.model.Cart;
+import com.ecommerce.backend.model.CartItem;
 import com.ecommerce.backend.model.Product;
 import com.ecommerce.backend.model.Wishlist;
 import com.ecommerce.backend.model.WishlistItem;
@@ -12,10 +14,11 @@ import com.ecommerce.backend.model.WishlistItem;
 @Repository
 public interface WishlistItemRepo extends JpaRepository<WishlistItem, Long> {
 
-    @Query("SELECT wi FROM WishlistItem wi WHERE wi.wishlist = :wishlist AND wi.product = :product AND wi.productId = :productId AND wi.size = :size AND wi.userId = :userId")
+    @Query("SELECT wi FROM WishlistItem wi WHERE wi.wishlist = :wishlist AND wi.product = :product AND wi.size = :size AND wi.userId = :userId")
    public  WishlistItem isWishlistItemExist(@Param("wishlist") Wishlist wishlist, 
-                                     @Param("product") Product product, 
-                                     @Param("productId") Long productId,
+                                     @Param("product") Product product,                                   
                                      @Param("size") String size, 
                                      @Param("userId") Long userId);
 }
+
+

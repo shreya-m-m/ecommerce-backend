@@ -28,7 +28,7 @@ public class WishlistItem {
     private Integer discountedPrice;
     
     private Long userId;
-    private Long productId;
+//    private Long productId;
 
 
 
@@ -48,7 +48,7 @@ public class WishlistItem {
 		this.quantity = quantity;
 		this.discountedPrice = discountedPrice;
 		this.userId = userId;
-		this.productId=productId;
+//		this.productId=productId;
 	}
 
 
@@ -132,14 +132,14 @@ public class WishlistItem {
 	}
 
 
-	public Long getProductId() {
-		return productId;
-	}
-
-
-	public void setProductId(Long productId) {
-		this.productId = productId;
-	}
+//	public Long getProductId() {
+//		return productId;
+//	}
+//
+//
+//	public void setProductId(Long productId) {
+//		this.productId = productId;
+//	}
 	
     
     
